@@ -3,6 +3,7 @@ from .forms import PostForm
 from django.shortcuts import redirect
 from .models import Post
 from django.utils import timezone
+from django.db.models import Q
 from django.shortcuts import render
 from django.shortcuts import render_to_response 
 from django.http import HttpResponseRedirect 
@@ -14,7 +15,10 @@ from django.template.context_processors import csrf
 # Create your views here.
 def post_list(request):
     posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
-    posts = Post.objects.filter(title__contains = 'first')
+    posts = Post.objects.all()
+    query = request.GET.get("q")
+    if query:
+        posts = posts.filter(Q(title__contains=query) | Q(text__contains=query)).distinct()
     #form2 = commentform()
     #if request.method == "POST":
         #form2 = commentform(request.POST)
@@ -84,7 +88,7 @@ def post_edit(request, pk):
     #return render(request,'app25/post_login.html',{'form1': form1})
 
 def post_fav(request):
-    fav = Post.objects.filter(favourites == True)
+    fav = Post.objects.filter(favourites=True)
     print fav
     return render(request,'app25/post_fav.html',{'fav':fav})
 
@@ -97,6 +101,7 @@ def add_fav(request,pk):
     post = form.save(commit=False)
     if post.favourites == False:
         post.favourites = True
+        
     else:
         post.favourites = False 
     post.save()
@@ -140,4 +145,12 @@ def loggedin(request):
     #"""
     #queryset = Group.objects.all()
     #serializer_class = GroupSerializer
+def delete(request,pk):
+    post = Post.objects.filter(pk=pk).delete()
+    return redirect('post_list')
+
+def logout(request): # changed
+    return render_to_response('app25/post_list.html')
+
+
 

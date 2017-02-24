@@ -1,0 +1,15 @@
+ {% extends 'app25/base.html' %}
+     
+       {% block content %}
+     {% for favours in fav %}
+     <div class="favours">
+            <h1 class = "col">{{ favours.title }}</h1>
+             <div align="right">
+             <div class="date">
+                {{ favours.published_date }}
+            </div>
+            </div>
+            <p>{{ favours.text|linebreaksbr }}</p>
+     </div>
+     {% endfor %}
+     {% endblock %}
